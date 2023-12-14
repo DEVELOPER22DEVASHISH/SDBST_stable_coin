@@ -13,7 +13,7 @@ const sepoliaRPC= "https://rpc.sepolia.org";
 const ethprovider = new ethers.providers.JsonRpcProvider(ethrpc);
 const sepoliaprovider = new ethers.providers.JsonRpcProvider(sepoliaRPC);
 
-const key = 'a300896d74e614eacbe69c0a4b46e36f494f6919df0063c09b88959774f7b856' // here we will paste private key
+const key = '' // here we will paste private key
 const walleteth = new ethers.Wallet(key, ethprovider);
 const walletsepolia = new ethers.Wallet(key, sepoliaprovider);
 
