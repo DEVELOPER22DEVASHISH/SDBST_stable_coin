@@ -18,18 +18,23 @@ contract UtilityCoin is Context, ERC20, ERC20Burnable, Ownable, AccessControl {
     mapping(address => uint256) private _balances; // when governance token minted we will see how many token minted
     uint256 private _totalSupply;
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE"); // enabling the manager role in deployer account
-    address private initialOwner;
+
+    // address private initialOwner;
 
     constructor() ERC20("DBST utilityToken", "DBSTU") {
         // _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         // _setupRole(MANAGER_ROLE, _msgSender());
-        initialOwner = msg.sender;
+        // initialOwner = msg.sender;
     }
 
     function mint(uint256 amount) external {
-        require(hasRole(MANAGER_ROLE, _msgSender()), "Not allowed");
+        // require(hasRole(MANAGER_ROLE, _msgSender()), "Not allowed");
         _totalSupply = _totalSupply.add(amount); // executing mint function will increase total supply
         _balances[msg.sender] = _balances[msg.sender].add(amount); // keep tracking/ auditing the balances
         _mint(msg.sender, amount);
+    }
+
+    function grantManagerRole(address account) external onlyOwner {
+        grantRole(MANAGER_ROLE, account);
     }
 }

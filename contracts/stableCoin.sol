@@ -18,12 +18,13 @@ contract stableDBST is Context, ERC20, ERC20Burnable, Ownable, AccessControl {
     mapping(address => uint256) private _balances; // when governance token minted we will see how many token minted
     uint256 private _totalSupply;
     bytes32 public constant MANAGER_ROLE = keccak256("MANAGER_ROLE"); // enabling the manager role in deployer account
-    address private initialOwner;
+
+    // address private initialOwner;
 
     constructor() ERC20("DBST Stable", "SDBST") {
-        // _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        // _setupRole(MANAGER_ROLE, _msgSender());
-        initialOwner = msg.sender;
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(MANAGER_ROLE, _msgSender());
+        // initialOwner = msg.sender;
     }
 
     function mint(uint256 amount) external {

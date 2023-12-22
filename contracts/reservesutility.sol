@@ -48,6 +48,10 @@ contract SDBSTReservess is Ownable, ReentrancyGuard, AccessControl {
         currentReserveCount++;
     }
 
+    // function reserveLength() view external returns(uint256) {
+    //    return currentReserveCount ;
+    // }
+
     function deposit(uint256 _pid, uint256 _amount) external {
         require(hasRole(MANAGER_ROLE, _msgSender()), "Not allowed");
         IERC20 reserve = rsvVault[_pid].collateral;
@@ -68,3 +72,6 @@ contract SDBSTReservess is Ownable, ReentrancyGuard, AccessControl {
         emit Withdraw(_pid, _amount);
     }
 }
+
+// when the collateral value is less than the total supply then we do not want to touch the sdbst token to stablise the token
+// here we will burn the utility token to balnce the stable coin

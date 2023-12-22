@@ -43,8 +43,8 @@ contract utilityGovernance is Ownable, ReentrancyGuard, AccessControl {
     uint256 public stableColPrice = 1e18; // 1 eth
 
     uint256 public stableColAmount;
-    uint256 private constant COL_PRICE_TO_WEI = 1E10;
-    uint256 private constant WEI_VALUE = 1E18; // CONVERING ANY VAUE TO WEI
+    uint256 private constant COL_PRICE_TO_WEI = 1e10;
+    uint256 private constant WEI_VALUE = 1e18; // CONVERING ANY VAUE TO WEI
     uint256 public unstableColAmount; // holding how much unstable collateral amount holding in reserves
     uint256 public unstableColPrice;
     uint256 public reserveCount; // number of total reserves count
@@ -146,9 +146,9 @@ contract utilityGovernance is Ownable, ReentrancyGuard, AccessControl {
         emit Withdraw(block.timestamp, _amount);
     }
 
-     function withdrawUDBST(uint256 _amount) external nonReentrant {
+    function withdrawUDBST(uint256 _amount) external nonReentrant {
         require(hasRole(GOVERN_ROLE, _msgSender()), "Not allowed");
-         udbst.transfer(address(msg.sender), _amount);
+        udbst.transfer(address(msg.sender), _amount);
         emit Withdraw(block.timestamp, _amount);
     }
 }

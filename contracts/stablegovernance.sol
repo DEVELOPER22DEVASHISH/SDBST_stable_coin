@@ -11,13 +11,13 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./stableCoin.sol"; // to intract with the stable coin for burning and minting
 
-contract DBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
+contract SDBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
     struct SupChange {
         // supply change to balance the coin
-        string method; // method to balance the peg
+        string method; // method to balance the peg // burn and mint
         uint256 amount; // amount required for the balacing the coin
         uint256 timestamp;
         uint256 blocknum; // blocknumber to balancing the token peg
@@ -27,23 +27,23 @@ contract DBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
 
     struct reserveList {
         // to store the collateral smart contract address/ id // to know how much collateral available
-        IERC20 colToken; //
+        IERC20 colToken; // for this one reserveCount;
     }
 
     mapping(uint256 => reserveList) public rsvList; // to check the collateral for token 1 , 2 so on
 
     stableDBST private sdbst; // this will allow to call mint and burn function from stable coin
     AggregatorV3Interface private priceFeed; // to interacting with the chain link
-    address private reserveContract; // later
+    address private reserveContract; // later // this is first reserve contract address // dbstreserve address
     uint256 public dbstSupply; // this is for after the repeg how much supply we have available
-    address public datafeed; // this is the address of datafeed of unstable collateral
+    address public datafeed; // this is the address of datafeed of unstable collateral // to perfrom repeg action
     uint256 public supplyChangeCount; // this is for real time supplychange for rebalancing the coin
-    // how many times we rebalance the coin
-    uint256 public stableColPrice = 1e18; // 1 eth
+    // how many times we rebalance the coin // counting
+    uint256 public stableColPrice = 1e18; // 1 eth // setting up stable coin price to 1 eth
 
     uint256 public stableColAmount;
-    uint256 private constant COL_PRICE_TO_WEI = 1E10;
-    uint256 private constant WEI_VALUE = 1E18; // CONVERING ANY VAUE TO WEI
+    uint256 private constant COL_PRICE_TO_WEI = 1e10;
+    uint256 private constant WEI_VALUE = 1e18; // CONVERING ANY VAUE TO WEI
     uint256 public unstableColAmount; // holding how much unstable collateral amount holding in reserves
     uint256 public unstableColPrice;
     uint256 public reserveCount; // number of total reserves count
@@ -59,13 +59,14 @@ contract DBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
     constructor(stableDBST _sdbst) {
         sdbst = _sdbst; // this is how the governance smart contract gets attached with the stable coin contract address
 
-        // _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        // _setupRole(GOVERN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(GOVERN_ROLE, _msgSender());
     }
 
     function addCollateralToken(IERC20 colcontract) external nonReentrant {
+        // storing address of the collateral token
         require(hasRole(GOVERN_ROLE, _msgSender()), "Not allowed");
-        rsvList[reserveCount].colToken = colcontract; // this is for adding every single token added to the collateral
+        rsvList[reserveCount].colToken = colcontract; // this is for adding every single token added to the collateral by the collateral address
         reserveCount++; //
     }
 
@@ -82,6 +83,7 @@ contract DBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
         unstableColPrice = uintPrice.mul(COL_PRICE_TO_WEI);
     }
 
+    // setting up reserve smart contract
     function setReserveContract(address reserve) external nonReentrant {
         require(hasRole(GOVERN_ROLE, _msgSender()), "Not allowed");
         reserveContract = reserve;
@@ -115,12 +117,14 @@ contract DBSTGovernance is Ownable, ReentrancyGuard, AccessControl {
         if (result == true) {
             // calculation of the total collateral value to peg stable coin in reserve.
             uint256 rawcolvalue = (stableColAmount.mul(WEI_VALUE)).add(
-                unstableColAmount.mul(unstableColPrice)
+                unstableColAmount.mul(unstableColPrice) // unstable collateral price is not fixed
             );
             uint256 colvalue = rawcolvalue.mul(WEI_VALUE);
+            // dbstsupply equal to stable coin supply
             if (colvalue < dbstSupply) {
+                // when coin price goes down
                 uint256 supplyChange = dbstSupply.sub(colvalue); // when supply is higher from collateral value we subtract it from the
-                sdbst.burn(supplyChange); // when we will burn there will be supply change
+                sdbst.burn(supplyChange); // when we will burn there will be supply change //
                 _supplyChange[supplyChangeCount].method = "Burn"; // left part is to keep track of supply change by burn method/ex 10h, 20th time
                 _supplyChange[supplyChangeCount].amount = supplyChange; // this is the value we obtain by subtracting the collateral value from the  supply
             }

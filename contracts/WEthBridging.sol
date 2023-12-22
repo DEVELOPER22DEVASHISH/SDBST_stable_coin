@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract Wbeth is ERC20, ERC20Burnable, Ownable {
     using SafeERC20 for ERC20;
 
-    constructor(address initialOwner) ERC20("Wrapped ETH", "WBETH") {}
+    constructor() ERC20("Wrapped ETH", "WBETH") {}
 
     function mint(uint256 amount) public onlyOwner {
         _mint(msg.sender, amount);
